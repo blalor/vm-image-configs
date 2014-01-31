@@ -10,11 +10,15 @@
             "access_key": "{{user `aws_access_key`}}",
             "secret_key": "{{user `aws_secret_key`}}",
             "region": "us-east-1",
-            "source_ami": "ami-75e4da1c",
-            "instance_type": "t1.micro",
+            "source_ami": "ami-416b5228",
+            "instance_type": "m1.small",
             "ssh_username": "ec2-user",
             "ssh_timeout": "10m",
-            "ami_name": "packer-example {{timestamp}}",
+            "ami_name": "packer-example {{ timestamp }}",
+            "tags": {
+                "distro": "centos",
+                "version": "6"
+            },
             "ami_block_device_mappings": [
                 {
                     "device_name": "/dev/sdb",

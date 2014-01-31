@@ -4,5 +4,6 @@ set -e
 set -u
 set -x
 
-rm -f /tmp/script.sh
+rm -rf /tmp/script.sh /tmp/packages
+
 yum -y clean all
