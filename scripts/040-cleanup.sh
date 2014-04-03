@@ -14,5 +14,8 @@ hwclock -s || true
 
 date
 
+## remove everything under /var/lib/cloud to force cloud-init to re-run
+[ -d /var/lib/cloud ] && find /var/lib/cloud -depth -mindepth 1 -maxdepth 1 | xargs rm -vrf
+
 rm -rf /tmp/script.sh /tmp/packages
 yum -y clean all
