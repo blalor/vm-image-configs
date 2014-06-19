@@ -5,7 +5,7 @@
     },
     "builders": [
         {
-            "name": "ami-builder-001",
+            "name": "centos6-ami-builder-001",
             "type": "amazon-ebs",
             "access_key": "{{user `aws_access_key`}}",
             "secret_key": "{{user `aws_secret_key`}}",
@@ -22,7 +22,7 @@
             ]
         },
         {
-            "name": "vbox-builder-001",
+            "name": "centos6-vbox-builder-001",
             "type": "virtualbox-iso",
             "iso_url": "http://mirror.keystealth.org/centos/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso",
             "iso_checksum": "0d9dc37b5dd4befa1c440d2174e88a87",
@@ -52,6 +52,39 @@
                 [ "modifyvm", "{{.Name}}", "--uart1", "0x3F8", "4" ],
                 [ "modifyvm", "{{.Name}}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
             ]
+        },
+        {
+            "name": "centos7-vbox-builder-001",
+            "type": "virtualbox-iso",
+            "iso_url": "http://buildlogs.centos.org/centos/7/os/x86_64-latest/images/boot.iso",
+            "iso_checksum": "d79d6fb913c457d54fcce71a2fd0a815",
+            "iso_checksum_type": "md5",
+
+            "http_directory": "kickstart/centos7",
+
+            "boot_wait": "5s",
+            "boot_command": [
+                "<tab><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg console=ttyS0,115200 console=tty0<enter><wait>"
+            ],
+            
+            "disk_size": 10240,
+            
+            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "guest_os_type": "RedHat_64",
+
+            "shutdown_command": "/sbin/halt -p",
+
+            "ssh_username": "root",
+            "ssh_password": "e2162577742148b05964a6926742c55a",
+            "ssh_wait_timeout": "30m",
+            
+            "virtualbox_version_file": ".vbox_version",
+            
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "1024" ],
+                [ "modifyvm", "{{.Name}}", "--uart1", "0x3F8", "4" ],
+                [ "modifyvm", "{{.Name}}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
+            ]
         }
     ],
     "provisioners": [
@@ -61,7 +94,7 @@
                 "scripts/virtualbox.sh",
                 "scripts/vagrant.sh"
             ],
-            "only": [ "vbox-builder-001" ]
+            "only": [ "centos6-vbox-builder-001" ]
         },
         {
             "type": "shell",
@@ -74,21 +107,21 @@
             "scripts": [
                 "scripts/zerodisk.sh"
             ],
-            "only": [ "vbox-builder-001" ]
+            "only": [ "centos6-vbox-builder-001" ]
         },
         {
             "type": "shell",
             "scripts": [
                 "scripts/lockdown.sh"
             ],
-            "only": [ "ami-builder-001" ]
+            "only": [ "centos6-ami-builder-001" ]
         }
     ],
     "post-processors": [
         {
             "type": "vagrant",
             "keep_input_artifact": true,
-            "only": [ "vbox-builder-001" ]
+            "only": [ "centos6-vbox-builder-001", "centos7-vbox-builder-001" ]
         }
     ]
 }
