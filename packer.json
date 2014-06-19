@@ -1,7 +1,8 @@
 {
     "variables": {
         "aws_access_key": "",
-        "aws_secret_key": ""
+        "aws_secret_key": "",
+        "root_passwd":    "e2162577742148b05964a6926742c55a"
     },
     "builders": [
         {
@@ -43,7 +44,7 @@
             "shutdown_command": "/sbin/halt -p",
 
             "ssh_username": "root",
-            "ssh_password": "e2162577742148b05964a6926742c55a",
+            "ssh_password": "{{user `root_passwd`}}",
             "ssh_wait_timeout": "30m",
             
             "virtualbox_version_file": ".vbox_version",
@@ -75,7 +76,7 @@
             "shutdown_command": "/sbin/halt -p",
 
             "ssh_username": "root",
-            "ssh_password": "e2162577742148b05964a6926742c55a",
+            "ssh_password": "{{user `root_passwd`}}",
             "ssh_wait_timeout": "30m",
             
             "virtualbox_version_file": ".vbox_version",
@@ -94,7 +95,7 @@
                 "scripts/virtualbox.sh",
                 "scripts/vagrant.sh"
             ],
-            "only": [ "centos6-vbox-builder-001" ]
+            "only": [ "centos6-vbox-builder-001", "centos7-vbox-builder-001" ]
         },
         {
             "type": "shell",
@@ -107,7 +108,7 @@
             "scripts": [
                 "scripts/zerodisk.sh"
             ],
-            "only": [ "centos6-vbox-builder-001" ]
+            "only": [ "centos6-vbox-builder-001", "centos7-vbox-builder-001" ]
         },
         {
             "type": "shell",

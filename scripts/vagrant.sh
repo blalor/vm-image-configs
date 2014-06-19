@@ -14,12 +14,14 @@ Defaults:vagrant !requiretty
 vagrant        ALL=(ALL)       NOPASSWD: ALL
 EOF
 
+chmod 440 /etc/sudoers.d/vagrant
+
 # Installing vagrant keys
 VAG_SSH="/home/vagrant/.ssh"
 
 mkdir -pm 700 ${VAG_SSH}
 
-curl -o ${VAG_SSH}/authorized_keys 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub'
+curl -L -o ${VAG_SSH}/authorized_keys 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub'
 
 chmod 0600 ${VAG_SSH}/authorized_keys
 chown -R vagrant ${VAG_SSH}
