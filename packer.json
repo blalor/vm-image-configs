@@ -65,7 +65,7 @@
 
             "boot_wait": "5s",
             "boot_command": [
-                "<tab><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg console=ttyS0,115200 console=tty0<enter><wait>"
+                "<esc> vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\\x207\\x20x86_64 inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg inst.headless inst.loglevel=debug console=ttyS0,115200 console=tty0<enter><wait>"
             ],
             
             "disk_size": 10240,
