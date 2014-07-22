@@ -57,8 +57,8 @@
         {
             "name": "centos7-vbox-builder-001",
             "type": "virtualbox-iso",
-            "iso_url": "http://buildlogs.centos.org/centos/7/os/x86_64-latest/images/boot.iso",
-            "iso_checksum": "d79d6fb913c457d54fcce71a2fd0a815",
+            "iso_url": "http://mirror.chpc.utah.edu/pub/centos/7.0.1406/isos/x86_64/CentOS-7.0-1406-x86_64-Minimal.iso",
+            "iso_checksum": "e3afe3f1121d69c40cc23f0bafa05e5d",
             "iso_checksum_type": "md5",
 
             "http_directory": "kickstart/centos7",

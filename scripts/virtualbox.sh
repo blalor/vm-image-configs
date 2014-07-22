@@ -30,36 +30,12 @@ yum -y install \
     binutils
 
 ## install guest additions
-vbga=$( cat /root/.vbox_version )
-iso="/root/VBoxGuestAdditions_${vbga}.iso"
+iso="/root/VBoxGuestAdditions_$( cat /root/.vbox_version ).iso"
 
 mkdir -p /mnt
 mount -o loop ${iso} /mnt
 
-## gotta patch the fucking additions for rhel7. only applies to rhel7 but should
-## not hurt centos6.
-## https://www.google.com/search?client=safari&rls=en&q=error:+%E2%80%98struct+mm_struct%E2%80%99+has+no+member+named+%E2%80%98numa_next_reset%E2%80%99&ie=UTF-8&oe=UTF-8
-## http://www.0xf8.org/2014/02/patching-virtualbox-guest-additions-for-sles12rhel7-guests/
-## https://www.virtualbox.org/ticket/12638
-tmpdir=$(mktemp -d)
-pushd ${tmpdir}
-
-/mnt/VBoxLinuxAdditions.run --noexec --keep
-pushd install
-mkdir unpack
-pushd unpack
-tar -xjf ../VBoxGuestAdditions-amd64.tar.bz2
-pushd src/vboxguest-${vbga}/vboxguest
-curl -L https://www.virtualbox.org/raw-attachment/ticket/12638/VBox-numa_no_reset.diff | patch -p3
-popd
-tar -cjf ../VBoxGuestAdditions-amd64.tar.bz2 .
-popd
-
-## typical Oracle bullshit installer.  It tries to install the X11 support no
-## matter what.  Even after shaving the yak to hack the installer to *not* do
-## that, I still couldn't get it to exit with 0, so fuck it, just ignore the
-## exit code.
-./install.sh || {
+/mnt/VBoxLinuxAdditions.run || {
     echo "oh, hey, VBoxGuestAdditions failed to install, exited with ${?}."
     echo "fuck you, Oracle."
 }
