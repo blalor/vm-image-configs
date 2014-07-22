@@ -116,6 +116,10 @@
                 "scripts/lockdown.sh"
             ],
             "only": [ "centos6-ami-builder-001" ]
+        },
+        {
+            "type": "shell",
+            "inline": "rm -f /tmp/shell.sh ## delete packer provisioner script"
         }
     ],
     "post-processors": [
