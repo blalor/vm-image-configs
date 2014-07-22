@@ -29,8 +29,16 @@ yum -y install \
     patch \
     binutils
 
-## install guest additions
-iso="/root/VBoxGuestAdditions_$( cat /root/.vbox_version ).iso"
+## install guest additions; at least 4.3.14 required
+vbox_ver=$( cat /root/.vbox_version )
+vbox_comp_ver=$( echo ${vbox_ver} | awk -F. '{ print (($1 * 10000) + ($2 * 100) + $3) }' )
+
+if [ ${vbox_comp_ver} -lt 40314 ]; then
+    echo "vbox version too old; have ${vbox_ver}, need >= 4.3.14"
+    exit 1
+fi
+
+iso="/root/VBoxGuestAdditions_${vbox_ver}.iso"
 
 mkdir -p /mnt
 mount -o loop ${iso} /mnt
@@ -42,5 +50,5 @@ mount -o loop ${iso} /mnt
 
 ## cleanup
 umount /mnt
-rm -rf ${iso} ${tmpdir}
+rm -rf ${iso}
 
