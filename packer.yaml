@@ -24,8 +24,9 @@ builders:
 
         ami_name: 'packer-example {{ timestamp }}'
         ami_block_device_mappings:
-        -   device_name: /dev/sdb
-            virtual_name: ephemeral0
+        -   device_name: /dev/xvda
+            volume_size: 10
+            delete_on_termination: true
 
     -   &centos6-vbox-builder-001
         name: centos6-vbox-builder-001
