@@ -1,7 +1,10 @@
 variables: ## referenced with {{ user `…` }}
-    aws_access_key: ''
-    aws_secret_key: ''
+    ## reasonable defaults
     root_passwd: e2162577742148b05964a6926742c55a
+
+    ## taken from the environment
+    aws_access_key: '{{env `AWS_ACCESS_KEY`}}'
+    aws_secret_key: '{{env `AWS_SECRET_KEY`}}'
 
 builders:
     -   name: centos6-ami-builder-001
@@ -29,6 +32,7 @@ builders:
 
         boot_wait: 10s
         boot_command:
+            ## @todo pass root password as boot param
             - '<tab> text console=ttyS0,115200 console=tty0 ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg<enter><wait>'
 
         disk_size: 10240
@@ -39,7 +43,7 @@ builders:
         shutdown_command: /sbin/halt -p
 
         ssh_username: root
-        ssh_password: '{{user `root_passwd`}}'
+        ssh_password: '{{ user `root_passwd` }}'
         ssh_wait_timeout: 30m
 
         virtualbox_version_file: .vbox_version
