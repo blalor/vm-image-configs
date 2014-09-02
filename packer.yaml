@@ -6,15 +6,22 @@ variables: ## referenced with {{ user `…` }}
     aws_access_key: '{{env `AWS_ACCESS_KEY`}}'
     aws_secret_key: '{{env `AWS_SECRET_KEY`}}'
 
+    ## required to be set with -var
+    git_sha: null
+
 builders:
     -   name: centos6-ami-builder-001
         type: amazon-ebs
+
         access_key: '{{user `aws_access_key`}}'
         secret_key: '{{user `aws_secret_key`}}'
+
         region: us-east-1
         source_ami: ami-75e4da1c
         instance_type: t1.micro
+
         ssh_username: ec2-user
+
         ami_name: 'packer-example {{ timestamp }}'
         ami_block_device_mappings:
         -   device_name: /dev/sdb
@@ -23,6 +30,7 @@ builders:
     -   &centos6-vbox-builder-001
         name: centos6-vbox-builder-001
         type: virtualbox-iso
+        output_directory: '{{ .Name }}_{{ user `git_sha` }}'
 
         iso_url: http://mirror.keystealth.org/centos/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso
         iso_checksum: 0d9dc37b5dd4befa1c440d2174e88a87
@@ -92,11 +100,13 @@ provisioners:
         scripts:
             - scripts/lockdown.sh
 
+        ## delete packer provisioner script
     -   type: shell
-        inline: 'rm -f /tmp/shell.sh ## delete packer provisioner script'
+        inline: 'rm -f /tmp/shell.sh'
 
 post-processors:
     -   type: vagrant
+        output: 'vagrant_{{ user `git_sha` }}_{{ .Provider }}.box'
         keep_input_artifact: true
         only:
             - centos6-vbox-builder-001
