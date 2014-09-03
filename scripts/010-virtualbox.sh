@@ -18,6 +18,25 @@ fi
 sed -i -e '1i\
 RES_OPTIONS="single-request-reopen"' /etc/sysconfig/network-scripts/ifcfg-enp0s3
 
+## required for centos7
+## https://github.com/mitchellh/vagrant/issues/1172#issuecomment-42263664
+if [ $( rpm -q --queryformat '%{VERSION}' centos-release ) -eq 7 ]; then
+    ## man, I hate heredocs.
+    ## escape *all* the things!
+    cat > /etc/NetworkManager/dispatcher.d/fix-slow-dns <<EOF
+#!/bin/bash
+
+interface=\${1}
+
+[ -f /etc/sysconfig/network-scripts/ifcfg-\${interface} ] && \\
+    . /etc/sysconfig/network-scripts/ifcfg-\${interface}
+
+echo "options \${RES_OPTIONS}" >> /etc/resolv.conf
+EOF
+
+chmod +x /etc/NetworkManager/dispatcher.d/fix-slow-dns
+fi
+
 service network restart
 
 ## cloud-init causes centos6 virtualbox to take ~2m longer to boot; can leave it
