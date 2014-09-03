@@ -1,8 +1,13 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u
+
+if [ ${PACKER_BUILDER_TYPE} != "virtualbox-iso" ]; then
+    echo "skipping for builder ${PACKER_BUILDER_TYPE}"
+    exit 0
+fi
 
 ## this stuff seems like voodoo; is it really required?
 

@@ -4,6 +4,16 @@ set -e
 set -u
 set -x
 
+if [ ${PACKER_BUILDER_TYPE} != "virtualbox-iso" ]; then
+    echo "skipping for builder ${PACKER_BUILDER_TYPE}"
+    exit 0
+fi
+
+ifcfg_dev="eth0"
+if ip link show enp0s3 >/dev/null 2>&1 ; then
+    ifcfg_dev="enp0s3"
+fi
+
 ## fucking VirtualBox's DNS and CentOS don't play nicely together
 sed -i -e '1i\
 RES_OPTIONS="single-request-reopen"' /etc/sysconfig/network-scripts/ifcfg-enp0s3

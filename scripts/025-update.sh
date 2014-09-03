@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 exec 0<&- # close stdin
 
 set -e -u -x

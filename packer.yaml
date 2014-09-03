@@ -89,30 +89,26 @@ builders:
             - '<esc> vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg inst.headless inst.cmdline noshell inst.loglevel=debug console=ttyS0,115200 console=tty0<enter><wait>'
 
 provisioners:
-    -   type: shell
-        only:
-            - centos6-vbox-builder-001
-            - centos7-vbox-builder-001
+    ## while you can use only and exclude properties to select when provisioners
+    ## are run, it's easier to use the PACKER_BUILDER_TYPE and PACKER_BUILD_NAME
+    ## env vars in shell scripts to determine if they should be run.  This
+    ## allows for build names with patterns, like "-cheffed".
+
+    ## this shell block is really only to specify defaults for others.
+    ## copy/pasting the execute_command everwhere is crazy trouble-prone.
+    -   &shell_default
+        type: shell
+        execute_command: 'chmod +x {{ .Path }}; {{ .Vars }} sudo -E {{ .Path }}'
+        scripts:
+            - scripts/000-dump_env.sh
+
+    -   <<: *shell_default
         scripts:
             - scripts/010-virtualbox.sh
             - scripts/020-vagrant.sh
-
-    -   type: shell
-        scripts:
             - scripts/025-update.sh
             - scripts/040-cleanup.sh
-
-    -   type: shell
-        only:
-            - centos6-vbox-builder-001
-            - centos7-vbox-builder-001
-        scripts:
             - scripts/050-zerodisk.sh
-
-    -   type: shell
-        only:
-            - centos6-ami-builder-001
-        scripts:
             - scripts/060-lockdown.sh
 
         ## delete packer provisioner script
