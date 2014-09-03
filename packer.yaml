@@ -117,7 +117,7 @@ provisioners:
 
 post-processors:
     -   type: vagrant
-        output: 'vagrant_{{ user `git_sha` }}_{{ .Provider }}.box'
+        output: '{{ .BuildName }}_{{ user `git_sha` }}.box'
         keep_input_artifact: true
         only:
             - centos6-vbox-builder-001
