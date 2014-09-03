@@ -3,8 +3,8 @@ variables: ## referenced with {{ user `…` }}
     root_passwd: e2162577742148b05964a6926742c55a
 
     ## taken from the environment
-    aws_access_key: '{{env `AWS_ACCESS_KEY`}}'
-    aws_secret_key: '{{env `AWS_SECRET_KEY`}}'
+    aws_access_key: '{{ env `AWS_ACCESS_KEY` }}'
+    aws_secret_key: '{{ env `AWS_SECRET_KEY` }}'
 
     ## required to be set with -var
     git_sha: null
@@ -21,6 +21,13 @@ builders:
         instance_type: t1.micro
 
         ssh_username: ec2-user
+
+        tags:
+            distro: 'centos'
+            version: '6'
+            git_sha: '{{ user `git_sha` }}'
+            isotime: '{{ isotime }}'
+            timestamp: '{{ timestamp }}'
 
         ami_name: 'packer-example {{ timestamp }}'
         ami_block_device_mappings:
@@ -63,6 +70,7 @@ builders:
         #     - [ "modifyvm", "{{ .Name }}", "--uart1", "0x3F8", "4" ]
         #     - [ "modifyvm", "{{ .Name }}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
 
+    ## inherit from centos6 vbox builder
     -   &centos7-vbox-builder-001
         <<: *centos6-vbox-builder-001
         name: centos7-vbox-builder-001
@@ -73,7 +81,12 @@ builders:
         http_directory: kickstart/centos7
 
         boot_command:
-            - '<esc> vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg inst.headless inst.loglevel=debug console=ttyS0,115200 console=tty0<enter><wait>'
+            ## quoting/escaping of the LABEL is critical.  it's literally
+            ## "CentOS 07 x86_64", but that needs to be a single argument to
+            ## inst.stage2.
+            ## https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/chap-anaconda-boot-options.html
+            ## @todo pass root password as boot param
+            - '<esc> vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg inst.headless inst.cmdline noshell inst.loglevel=debug console=ttyS0,115200 console=tty0<enter><wait>'
 
 provisioners:
     -   type: shell
@@ -81,25 +94,25 @@ provisioners:
             - centos6-vbox-builder-001
             - centos7-vbox-builder-001
         scripts:
-            - scripts/virtualbox.sh
-            - scripts/vagrant.sh
+            - scripts/010-virtualbox.sh
+            - scripts/020-vagrant.sh
 
     -   type: shell
         scripts:
-            - scripts/cleanup.sh
+            - scripts/040-cleanup.sh
 
     -   type: shell
         only:
             - centos6-vbox-builder-001
             - centos7-vbox-builder-001
         scripts:
-            - scripts/zerodisk.sh
+            - scripts/050-zerodisk.sh
 
     -   type: shell
         only:
             - centos6-ami-builder-001
         scripts:
-            - scripts/lockdown.sh
+            - scripts/060-lockdown.sh
 
         ## delete packer provisioner script
     -   type: shell

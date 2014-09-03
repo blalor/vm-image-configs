@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "packer_vbox-builder-001_virtualbox"
+  config.vm.box = "centos7-vbox-plain_#{git_sha}_virtualbox"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -45,14 +45,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Example for VirtualBox:
   #
   config.vm.provider :virtualbox do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-      vb.customize [ "modifyvm", :id, "--uart1", "0x3F8", "4" ]
-      vb.customize [ "modifyvm", :id, "--uartmode1", "file", File.realpath( "." ).to_s + "/console-vagrant.out" ]
-
+      # Don't boot with headless mode
+      ## vb.gui = true
+   
+      # Use VBoxManage to customize the VM. For example to change memory:
+      ## vb.customize [ "modifyvm", :id, "--memory", "1024" ]
+      ## vb.customize [ "modifyvm", :id, "--uart1", "0x3F8", "4" ]
+      ## vb.customize [ "modifyvm", :id, "--uartmode1", "file", File.realpath( "." ).to_s + "/console-vagrant.out" ]
   end
   #
   # View the documentation for the provider you're using for more
