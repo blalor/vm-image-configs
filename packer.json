@@ -1,20 +1,21 @@
 {
     "variables": {
         "aws_access_key": "",
-        "aws_secret_key": ""
+        "aws_secret_key": "",
+        "git_sha": null
     },
     "builders": [
         {
             "name": "ami-builder-001",
             "type": "amazon-ebs",
-            "access_key": "{{user `aws_access_key`}}",
-            "secret_key": "{{user `aws_secret_key`}}",
+            "access_key": "{{ user `aws_access_key` }}",
+            "secret_key": "{{ user `aws_secret_key` }}",
             "region": "us-east-1",
             "source_ami": "ami-416b5228",
             "instance_type": "m1.small",
             "ssh_username": "ec2-user",
             "ssh_timeout": "10m",
-            "ami_name": "packer-example {{ timestamp }}",
+            "ami_name": "CentOS 6 {{ user `git_sha` }}",
             "tags": {
                 "distro": "centos",
                 "version": "6"
@@ -27,8 +28,11 @@
             ]
         },
         {
-            "name": "vbox-builder-001",
             "type": "virtualbox-iso",
+            "name": "vbox-builder-001",
+            "output_directory": "vbox-builder-001_{{ user `git_sha` }}",
+            
+            "headless": true,
             "iso_url": "http://mirror.keystealth.org/centos/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso",
             "iso_checksum": "0d9dc37b5dd4befa1c440d2174e88a87",
             "iso_checksum_type": "md5",
@@ -42,7 +46,7 @@
             
             "disk_size": 10240,
             
-            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
             "guest_os_type": "RedHat_64",
 
             "shutdown_command": "/sbin/halt -p",
@@ -54,8 +58,8 @@
             "virtualbox_version_file": ".vbox_version",
             
             "vboxmanage": [
-                [ "modifyvm", "{{.Name}}", "--uart1", "0x3F8", "4" ],
-                [ "modifyvm", "{{.Name}}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
+                [ "modifyvm", "{{ .Name }}", "--uart1", "0x3F8", "4" ],
+                [ "modifyvm", "{{ .Name }}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
             ]
         }
     ],
@@ -101,7 +105,7 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "keep_input_artifact": true,
+            "output": "vagrant_{{ user `git_sha` }}_{{ .Provider }}.box",
             "only": [ "vbox-builder-001" ]
         }
     ]
