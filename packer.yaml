@@ -1,0 +1,99 @@
+variables: ## referenced with {{ user `…` }}
+    aws_access_key: ''
+    aws_secret_key: ''
+    root_passwd: e2162577742148b05964a6926742c55a
+
+builders:
+    -   name: centos6-ami-builder-001
+        type: amazon-ebs
+        access_key: '{{user `aws_access_key`}}'
+        secret_key: '{{user `aws_secret_key`}}'
+        region: us-east-1
+        source_ami: ami-75e4da1c
+        instance_type: t1.micro
+        ssh_username: ec2-user
+        ami_name: 'packer-example {{ timestamp }}'
+        ami_block_device_mappings:
+        -   device_name: /dev/sdb
+            virtual_name: ephemeral0
+
+    -   &centos6-vbox-builder-001
+        name: centos6-vbox-builder-001
+        type: virtualbox-iso
+
+        iso_url: http://mirror.keystealth.org/centos/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso
+        iso_checksum: 0d9dc37b5dd4befa1c440d2174e88a87
+        iso_checksum_type: md5
+
+        http_directory: kickstart/centos6-minimal
+
+        boot_wait: 10s
+        boot_command:
+            - '<tab> text console=ttyS0,115200 console=tty0 ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg<enter><wait>'
+
+        disk_size: 10240
+
+        guest_additions_path: 'VBoxGuestAdditions_{{ .Version }}.iso'
+        guest_os_type: RedHat_64
+
+        shutdown_command: /sbin/halt -p
+
+        ssh_username: root
+        ssh_password: '{{user `root_passwd`}}'
+        ssh_wait_timeout: 30m
+
+        virtualbox_version_file: .vbox_version
+
+        ## UNCOMMENT BELOW IF YOU NEED TO DEBUG THE IMAGE BUILDING STEP IN VIRTUALBOX
+        ## https://www.virtualbox.org/wiki/Serial_redirect
+        # vboxmanage:
+        #     - [ "modifyvm", "{{ .Name }}", "--uart1", "0x3F8", "4" ]
+        #     - [ "modifyvm", "{{ .Name }}", "--uartmode1", "file", "{{ pwd }}/console-packer.out" ]
+
+    -   &centos7-vbox-builder-001
+        <<: *centos6-vbox-builder-001
+        name: centos7-vbox-builder-001
+
+        iso_url: http://mirrors.seas.harvard.edu/centos/7.0.1406/isos/x86_64/CentOS-7.0-1406-x86_64-Minimal.iso
+        iso_checksum: e3afe3f1121d69c40cc23f0bafa05e5d
+
+        http_directory: kickstart/centos7
+
+        boot_command:
+            - '<esc> vmlinuz initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/virtualbox.cfg inst.headless inst.loglevel=debug console=ttyS0,115200 console=tty0<enter><wait>'
+
+provisioners:
+    -   type: shell
+        only:
+            - centos6-vbox-builder-001
+            - centos7-vbox-builder-001
+        scripts:
+            - scripts/virtualbox.sh
+            - scripts/vagrant.sh
+
+    -   type: shell
+        scripts:
+            - scripts/cleanup.sh
+
+    -   type: shell
+        only:
+            - centos6-vbox-builder-001
+            - centos7-vbox-builder-001
+        scripts:
+            - scripts/zerodisk.sh
+
+    -   type: shell
+        only:
+            - centos6-ami-builder-001
+        scripts:
+            - scripts/lockdown.sh
+
+    -   type: shell
+        inline: 'rm -f /tmp/shell.sh ## delete packer provisioner script'
+
+post-processors:
+    -   type: vagrant
+        keep_input_artifact: true
+        only:
+            - centos6-vbox-builder-001
+            - centos7-vbox-builder-001
