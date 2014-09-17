@@ -99,6 +99,7 @@ provisioners:
 
     -   type: shell
         scripts:
+            - scripts/025-update.sh
             - scripts/040-cleanup.sh
 
     -   type: shell
