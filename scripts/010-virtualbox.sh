@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u
 
 ## fucking VirtualBox's DNS and CentOS don't play nicely together
 sed -i -e '1i\
@@ -54,4 +54,3 @@ mount -o loop ${iso} /mnt
 ## cleanup
 umount /mnt
 rm -rf ${iso}
-

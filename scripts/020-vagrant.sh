@@ -1,11 +1,15 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u -x
 
 # Vagrant specific
 date > /etc/vagrant_box_build_time
+
+## common baseline with ec2 instance
+/usr/sbin/useradd ec2-user
+touch ~ec2-user/.ssh/authorized_keys
 
 /usr/sbin/useradd vagrant
 echo vagrant | passwd --stdin vagrant

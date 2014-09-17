@@ -63,8 +63,8 @@
         {
             "type": "shell",
             "scripts": [
-                "scripts/virtualbox.sh",
-                "scripts/vagrant.sh"
+                "scripts/010-virtualbox.sh",
+                "scripts/020-vagrant.sh"
             ],
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E {{ .Path }}",
             "only": [ "vbox-builder-001" ]
@@ -72,14 +72,15 @@
         {
             "type": "shell",
             "scripts": [
-                "scripts/cleanup.sh"
+                "scripts/025-update.sh",
+                "scripts/040-cleanup.sh"
             ],
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E {{ .Path }}"
         },
         {
             "type": "shell",
             "scripts": [
-                "scripts/zerodisk.sh"
+                "scripts/050-zerodisk.sh"
             ],
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E {{ .Path }}",
             "only": [ "vbox-builder-001" ]
@@ -87,7 +88,7 @@
         {
             "type": "shell",
             "scripts": [
-                "scripts/lockdown.sh"
+                "scripts/060-lockdown.sh"
             ],
             "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E {{ .Path }}",
             "only": [ "ami-builder-001" ]
