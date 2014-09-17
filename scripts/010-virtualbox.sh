@@ -1,17 +1,14 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u
 
 ## fucking VirtualBox's DNS and CentOS don't play nicely together
 sed -i -e '1i\
 RES_OPTIONS="single-request-reopen"' /etc/sysconfig/network-scripts/ifcfg-eth0
 
 service network restart
-
-## cloud-init causes virtualbox to take ~2m longer to boot
-rpm -e cloud-init
 
 ## don't do DNS lookups for ssh when logging in
 sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
@@ -54,4 +51,3 @@ mount -o loop ${iso} /mnt
 ## cleanup
 umount /mnt
 rm -rf ${iso}
-

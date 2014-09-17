@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u -x
 
 ## this stuff seems like voodoo; is it really required?
 

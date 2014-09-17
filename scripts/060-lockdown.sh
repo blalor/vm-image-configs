@@ -1,5 +1,9 @@
 #!/bin/bash
 
+exec 0<&- # close stdin
+
+set -e -u
+
 ## lock the root account so it can't be logged into
 /usr/sbin/usermod -L root
 

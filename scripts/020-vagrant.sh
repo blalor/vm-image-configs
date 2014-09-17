@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
-set -u
-set -x
+exec 0<&- # close stdin
+
+set -e -u -x
 
 # Vagrant specific
 date > /etc/vagrant_box_build_time
@@ -19,7 +19,7 @@ VAG_SSH="/home/vagrant/.ssh"
 
 mkdir -pm 700 ${VAG_SSH}
 
-curl -o ${VAG_SSH}/authorized_keys 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub'
+curl -L -o ${VAG_SSH}/authorized_keys 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub'
 
 chmod 0600 ${VAG_SSH}/authorized_keys
 chown -R vagrant ${VAG_SSH}
